@@ -8,7 +8,7 @@ import cv2
 import pickle
 import VideoToFrame
 
-st.set_page_config(layout='wide', initial_sidebar_state='expanded')
+st.set_page_config(layout='wide', initial_sidebar_state='expanded', page_title='Video Object Detection and Depth Estimation')
 st.title('Video Object Detection and Depth Estimation')
 
 yolo_model_path = os.environ.get('YOLO_MODEL_PATH')
