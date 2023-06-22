@@ -24,12 +24,12 @@ def download_models():
     subprocess.run(['wget', 'https://sfu.ca/~yagiz/CVPR21/latest_net_G.pth'])
 
     # Downloading merge model weights
-    subprocess.run(['mkdir', '-p', '/content/BoostingMonocularDepth/pix2pix/checkpoints/mergemodel/'])
-    subprocess.run(['mv', 'latest_net_G.pth', '/content/BoostingMonocularDepth/pix2pix/checkpoints/mergemodel/'])
+    subprocess.run(['mkdir', '-p', 'BoostingMonocularDepth/pix2pix/checkpoints/mergemodel/'])
+    subprocess.run(['mv', 'latest_net_G.pth', 'BoostingMonocularDepth/pix2pix/checkpoints/mergemodel/'])
 
     # Downloading Midas weights
     subprocess.run(['wget', 'https://github.com/AlexeyAB/MiDaS/releases/download/midas_dpt/midas_v21-f6b98070.pt'])
-    subprocess.run(['mv', 'midas_v21-f6b98070.pt', '/content/BoostingMonocularDepth/midas/model.pt'])
+    subprocess.run(['mv', 'midas_v21-f6b98070.pt', 'BoostingMonocularDepth/midas/model.pt'])
 
 
 def process_images(depth_path, original_path,depth_images_folder):
