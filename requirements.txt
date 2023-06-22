@@ -1,4 +1,6 @@
+super_gradients==3.1.0
 streamlit
 plost
 pandas
-cv2
+opencv-python
+subprocess
