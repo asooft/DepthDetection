@@ -3,4 +3,3 @@ streamlit
 plost
 pandas
 opencv-python
-subprocess
