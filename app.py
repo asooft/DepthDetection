@@ -73,7 +73,7 @@ if video_file:
 
     # Depth maps
     depth_frames_dir = os.environ.get('DEPTH_FRAMES_PATH')
-    depth_model_path = '/content/BoostingMonocularDepth/run.py'
+    depth_model_path = 'BoostingMonocularDepth/run.py'
 
     # change directory
     os.chdir("BoostingMonocularDepth/")
