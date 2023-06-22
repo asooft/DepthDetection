@@ -1,0 +1,17 @@
+super_gradients==3.1.0
+streamlit
+plost
+pandas
+subprocess
+cv2
+
+
+
+
+torch
+numpy
+requests
+tqdm
+IPython
+streamlit
+pandas
