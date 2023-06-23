@@ -2,5 +2,5 @@ super_gradients==3.1.0
 streamlit
 plost
 pandas
-opencv-python
-opencv-python-headless==4.5.3.56
+opencv-python==4.5.5.64
+opencv-python-headless==4.5.5.64
