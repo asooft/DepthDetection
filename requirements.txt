@@ -5,4 +5,4 @@ pandas
 opencv-contrib-python
 opencv-python
 opencv-python-headless
-torchvision=0.11.1
+torchvision==0.11.1
