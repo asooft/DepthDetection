@@ -16,12 +16,12 @@ st.title('Video Object Detection and Depth Estimation')
 #current_path = os.getcwd()
 #st.write("Current path:", current_path)
 
-target_dir = '/app/depthdetection/'
-os.chdir(target_dir)
+#target_dir = '/app/depthdetection/'
+#os.chdir(target_dir)
 
 # Verify the current directory
-current_dir = os.getcwd()
-st.write("Current directory:", current_dir)
+#current_dir = os.getcwd()
+#st.write("Current directory:", current_dir)
 
 
 yolo_model_path = 'modelSmall.pkl'
