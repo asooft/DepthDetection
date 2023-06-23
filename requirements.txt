@@ -2,5 +2,5 @@ super_gradients==3.1.0
 streamlit
 plost
 pandas
+python3-opencv
 opencv-python
-libgl1
