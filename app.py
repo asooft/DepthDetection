@@ -5,57 +5,79 @@ import tempfile
 import os
 import subprocess
 import cv2
+import numpy as np
 import pickle
 import VideoToFrame
-import requests
+from transformers import GLPNFeatureExtractor, GLPNForDepthEstimation
+import torch
 
 
-st.set_page_config(layout='wide', initial_sidebar_state='expanded', page_title='Video Object Detection and Depth Estimation')
+st.set_page_config(layout='wide', initial_sidebar_state='expanded')
 st.title('Video Object Detection and Depth Estimation')
 
-#current_path = os.getcwd()
-#st.write("Current path:", current_path)
-
-#target_dir = '/app/depthdetection/'
-#os.chdir(target_dir)
-
-# Verify the current directory
-#current_dir = os.getcwd()
-#st.write("Current directory:", current_dir)
-
+# Allow the user to upload a video file
+video_file = st.file_uploader('Upload a video file', type=['mp4'])
 
 yolo_model_path = 'modelSmall.pkl'
-with open(yolo_model_path, 'rb') as f:
-    yolo = pickle.load(f)
 
-@st.cache_data()
-def download_models():
-    # Clone git repo
-    subprocess.run(['git', 'clone', 'https://github.com/compphoto/BoostingMonocularDepth.git'])
-
-    # Download latest_net_G.pth
-    
-    
-    #url = 'https://sfu.ca/~yagiz/CVPR21/latest_net_G.pth'
-    #response = requests.get(url)
-
-    #with open('latest_net_G.pth', 'wb') as f:
-    #    f.write(response.content)
-    #subprocess.run(['wget', 'https://sfu.ca/~yagiz/CVPR21/latest_net_G.pth'])
-    subprocess.run(['curl', '-o', 'latest_net_G.pth', 'https://sfu.ca/~yagiz/CVPR21/latest_net_G.pth'])
+with st.spinner('Loading Models'):
+    feature_extractor = GLPNFeatureExtractor.from_pretrained("vinvino02/glpn-kitti")
+    model = GLPNForDepthEstimation.from_pretrained("vinvino02/glpn-kitti")
+    with open(yolo_model_path, 'rb') as f:
+        yolo = pickle.load(f)
 
 
-    # Downloading merge model weights
-    subprocess.run(['mkdir', '-p', 'BoostingMonocularDepth/pix2pix/checkpoints/mergemodel/'])
-    subprocess.run(['mv', 'latest_net_G.pth', 'BoostingMonocularDepth/pix2pix/checkpoints/mergemodel/'])
+def GLPN(frames_dir, output_folder):
+    # Check if GPU is available
+    device = torch.device('cuda' if torch.cuda.is_available() else 'cpu')
 
-    # Downloading Midas weights
-    url = 'https://github.com/AlexeyAB/MiDaS/releases/download/midas_dpt/midas_v21-f6b98070.pt'
-    subprocess.run(['curl', '-o', 'midas_v21-f6b98070.pt', url])
-    #subprocess.run(['wget', 'https://github.com/AlexeyAB/MiDaS/releases/download/midas_dpt/midas_v21-f6b98070.pt'])
-    subprocess.run(['mv', 'midas_v21-f6b98070.pt', 'BoostingMonocularDepth/midas/model.pt'])
+    # Move the predicted_depth model to the GPU (if needed)
+    model.to(device)
 
+    frame_count = 0
 
+    for img in os.listdir(frames_dir):
+        image = cv2.imread(os.path.join(frames_dir, img))
+
+        pixel_values = feature_extractor(image, return_tensors="pt").pixel_values
+
+        # print(frame_count)
+        with torch.no_grad():
+            # Transfer pixel_values to the GPU (if needed)
+            pixel_values = pixel_values.to(device)
+
+            outputs = model(pixel_values)
+            predicted_depth = outputs.predicted_depth
+
+        prediction = torch.nn.functional.interpolate(
+            predicted_depth.unsqueeze(1),
+            size=pixel_values.shape[-2:],
+            mode="bicubic",
+            align_corners=False,
+        )
+        prediction = prediction.squeeze().cpu().numpy()
+
+        # Invert the depth values
+        inverted_prediction = np.max(prediction) - prediction
+
+        # Normalize the inverted depth values
+        # normalized_prediction = inverted_prediction / np.max(inverted_prediction)
+
+        # Scale the normalized depth values to the range [0, 255]
+        # scaled_prediction = (normalized_prediction * 255).astype("uint8")
+
+        # Convert to grayscale
+        # pred_d_gray = cv2.cvtColor(scaled_prediction, cv2.COLOR_BGR2GRAY)
+
+        pred_d_numpy = (prediction / prediction.max()) * 255
+        pred_d_numpy = pred_d_numpy.astype(np.uint8)
+        pred_d_color = cv2.applyColorMap(pred_d_numpy, cv2.COLORMAP_RAINBOW)
+
+        frame_number_padded = str(frame_count).zfill(6)  # Pad frame number with leading zeros
+
+        output_path = os.path.join(output_folder, f"frame_{frame_number_padded}.jpg")
+        cv2.imwrite(output_path, pred_d_color)
+        frame_count += 1
 def process_images(depth_path, original_path,depth_images_folder):
     depth_image = cv2.imread(depth_path)
     depth_shape = depth_image.shape
@@ -73,24 +95,16 @@ def process_images(depth_path, original_path,depth_images_folder):
     filename = depth_path.split('/')[-1]
     filepath = os.path.join(depth_images_folder, filename)
     cv2.imwrite(filepath, depth_image)
-    
-    
 
-# Allow the user to upload a video file
-video_file = st.file_uploader('Upload a video file', type=['mp4'])
-
-# Download needed models
-download_models()
 
 # If the user has uploaded a video file, perform object detection on it
 if video_file:
     # Specify the path where you want to save the file
-    
     input_video_path = "INPUT_VIDEO"
 
     if not os.path.exists(input_video_path):
         os.makedirs(input_video_path)
-    #input_video_path = os.environ.get('INPUT_VIDEO_PATH')
+        
     save_path = os.path.join(input_video_path, video_file.name)
 
     # Save the file to the specified path
@@ -102,31 +116,19 @@ if video_file:
 
     if not os.path.exists(frames_dir):
         os.makedirs(frames_dir)
-        
-    #frames_dir = os.environ.get('INPUT_VIDEO_FRAMES_PATH')
     frame_interval = int(os.environ.get('FPS', '5'))
-
-    #frame_interval = int(os.environ.get('FPS') ) # Capture every 5th frame
+    #frame_interval = int(os.environ.get('FRAME_INTERVAL') ) # Capture every 5th frame
     VideoToFrame.convert_video_to_frames(save_path, frames_dir, frame_interval)
 
-    # Depth maps
+    # Depth maps    
     depth_frames_dir = "DEPTH_FRAMES"
 
     if not os.path.exists(depth_frames_dir):
         os.makedirs(depth_frames_dir)
-    #depth_frames_dir = os.environ.get('DEPTH_FRAMES_PATH')
-    depth_model_path = 'run.py'
-
-    # change directory
-    os.chdir("BoostingMonocularDepth/")
-
-    # Construct the command using string formatting
-    command = ["python", depth_model_path, "--Final", "--data_dir", frames_dir,
-               "--output_dir", depth_frames_dir, "--depthNet", str(0), "--colorize_results", "--max_res", str(2000)]
 
     # Run the command
     with st.spinner('Running depth estimation'):
-        subprocess.run(command, check=True)
+        GLPN(frames_dir, depth_frames_dir)
 
     # yolo and merge
     with st.spinner('Running object detection'):
@@ -134,14 +136,13 @@ if video_file:
 
         if not os.path.exists(output_frames):
             os.makedirs(output_frames)
-        #output_frames = os.environ.get('OUTPUT_FRAMES_PATH')
         for img in os.listdir(frames_dir):
-            depth_path = os.path.join(depth_frames_dir, img.split('.jpg')[0] + '.png')
-            process_images(depth_path=depth_path, original_path=os.path.join(frames_dir, img),
+            process_images(depth_path=os.path.join(depth_frames_dir, img), original_path=os.path.join(frames_dir, img),
                            depth_images_folder=output_frames)
 
     # Frames to output video
-    output_path = os.path.join(output_frames, "converted.mp4")
+    output_path = os.path.join(output_frames, "converted.webm")
+    #output_path = os.path.join(os.environ.get('OUTPUT_VIDEO_PATH'), "converted.webm")
     fps = int(os.environ.get('FPS')) # Frames per second
     VideoToFrame.convert_frames_to_video(output_frames, output_path, fps)
 

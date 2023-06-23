@@ -1,0 +1,8 @@
+super_gradients==3.1.0
+streamlit
+plost
+pandas
+opencv-contrib-python
+opencv-python
+opencv-python-headless
+torchvision==0.13.0
