@@ -91,7 +91,9 @@ if video_file:
         os.makedirs(frames_dir)
         
     #frames_dir = os.environ.get('INPUT_VIDEO_FRAMES_PATH')
-    frame_interval = int(os.environ.get('FPS') ) # Capture every 5th frame
+    frame_interval = int(os.environ.get('FPS', '5'))
+
+    #frame_interval = int(os.environ.get('FPS') ) # Capture every 5th frame
     VideoToFrame.convert_video_to_frames(save_path, frames_dir, frame_interval)
 
     # Depth maps
