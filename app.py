@@ -143,7 +143,7 @@ if video_file:
     # Frames to output video
     output_path = os.path.join(output_frames, "converted.webm")
     #output_path = os.path.join(os.environ.get('OUTPUT_VIDEO_PATH'), "converted.webm")
-    fps = int(os.environ.get('FPS')) # Frames per second
+    fps = int(os.environ.get('FPS', '5'))
     VideoToFrame.convert_frames_to_video(output_frames, output_path, fps)
 
     st.video(output_path)
