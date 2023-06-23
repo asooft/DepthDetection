@@ -1,7 +1,7 @@
 import cv2
 import os
 
-def convert_video_to_frames(video_path, output_dir, frame_interval):
+def convert_video_to_frames(video_path, output_dir, frame_interval, resize = False):
     # Read the video
     video = cv2.VideoCapture(video_path)
 
@@ -26,6 +26,8 @@ def convert_video_to_frames(video_path, output_dir, frame_interval):
         if not ret:
             break
 
+        if resize:
+          frame = cv2.resize(frame, (800, 600))
         # Check if the frame should be captured
         if frame_index % frame_interval == 0:
             # Generate the output frame filename
@@ -56,7 +58,7 @@ def convert_frames_to_video(frames_dir, output_path, fps):
     frame_size = (first_frame.shape[1], first_frame.shape[0])
 
     # Initialize the video writer
-    fourcc = cv2.VideoWriter_fourcc(*"mp4v")  # Specify the video codec
+    fourcc = cv2.VideoWriter_fourcc(*"VP80")  # Specify the video codec
     video_writer = cv2.VideoWriter(output_path, fourcc, fps, frame_size)
 
     # Write each frame to the video
