@@ -7,6 +7,8 @@ import subprocess
 import cv2
 import pickle
 import VideoToFrame
+import requests
+
 
 st.set_page_config(layout='wide', initial_sidebar_state='expanded', page_title='Video Object Detection and Depth Estimation')
 st.title('Video Object Detection and Depth Estimation')
@@ -21,14 +23,25 @@ def download_models():
     subprocess.run(['git', 'clone', 'https://github.com/compphoto/BoostingMonocularDepth.git'])
 
     # Download latest_net_G.pth
-    subprocess.run(['wget', 'https://sfu.ca/~yagiz/CVPR21/latest_net_G.pth'])
+    
+    
+    #url = 'https://sfu.ca/~yagiz/CVPR21/latest_net_G.pth'
+    #response = requests.get(url)
+
+    #with open('latest_net_G.pth', 'wb') as f:
+    #    f.write(response.content)
+    #subprocess.run(['wget', 'https://sfu.ca/~yagiz/CVPR21/latest_net_G.pth'])
+    subprocess.run(['curl', '-o', 'latest_net_G.pth', 'https://sfu.ca/~yagiz/CVPR21/latest_net_G.pth'])
+
 
     # Downloading merge model weights
     subprocess.run(['mkdir', '-p', 'BoostingMonocularDepth/pix2pix/checkpoints/mergemodel/'])
     subprocess.run(['mv', 'latest_net_G.pth', 'BoostingMonocularDepth/pix2pix/checkpoints/mergemodel/'])
 
     # Downloading Midas weights
-    subprocess.run(['wget', 'https://github.com/AlexeyAB/MiDaS/releases/download/midas_dpt/midas_v21-f6b98070.pt'])
+    url = 'https://github.com/AlexeyAB/MiDaS/releases/download/midas_dpt/midas_v21-f6b98070.pt'
+    subprocess.run(['curl', '-o', 'midas_v21-f6b98070.pt', url])
+    #subprocess.run(['wget', 'https://github.com/AlexeyAB/MiDaS/releases/download/midas_dpt/midas_v21-f6b98070.pt'])
     subprocess.run(['mv', 'midas_v21-f6b98070.pt', 'BoostingMonocularDepth/midas/model.pt'])
 
 
