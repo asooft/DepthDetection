@@ -4,9 +4,6 @@ import plost
 import tempfile
 import os
 import subprocess
-apt-get update && apt-get install libgl1
-RUN apt-get update && apt-get install ffmpeg libsm6 libxext6  -y
-
 import cv2
 import pickle
 import VideoToFrame
