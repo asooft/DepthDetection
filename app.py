@@ -102,7 +102,7 @@ if video_file:
     if not os.path.exists(depth_frames_dir):
         os.makedirs(depth_frames_dir)
     #depth_frames_dir = os.environ.get('DEPTH_FRAMES_PATH')
-    depth_model_path = 'BoostingMonocularDepth/run.py'
+    depth_model_path = 'run.py'
 
     # change directory
     os.chdir("BoostingMonocularDepth/")
