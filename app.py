@@ -72,7 +72,12 @@ download_models()
 # If the user has uploaded a video file, perform object detection on it
 if video_file:
     # Specify the path where you want to save the file
-    input_video_path = os.environ.get('INPUT_VIDEO_PATH')
+    
+    input_video_path = "INPUT_VIDEO"
+
+    if not os.path.exists(input_video_path):
+        os.makedirs(input_video_path)
+    #input_video_path = os.environ.get('INPUT_VIDEO_PATH')
     save_path = os.path.join(input_video_path, video_file.name)
 
     # Save the file to the specified path
@@ -80,12 +85,21 @@ if video_file:
         f.write(video_file.getbuffer())
 
     # Video to frames
-    frames_dir = os.environ.get('INPUT_VIDEO_FRAMES_PATH')
+    frames_dir = "INPUT_VIDEO_FRAMES"
+
+    if not os.path.exists(frames_dir):
+        os.makedirs(frames_dir)
+        
+    #frames_dir = os.environ.get('INPUT_VIDEO_FRAMES_PATH')
     frame_interval = int(os.environ.get('FPS') ) # Capture every 5th frame
     VideoToFrame.convert_video_to_frames(save_path, frames_dir, frame_interval)
 
     # Depth maps
-    depth_frames_dir = os.environ.get('DEPTH_FRAMES_PATH')
+    depth_frames_dir = "DEPTH_FRAMES"
+
+    if not os.path.exists(depth_frames_dir):
+        os.makedirs(depth_frames_dir)
+    #depth_frames_dir = os.environ.get('DEPTH_FRAMES_PATH')
     depth_model_path = 'BoostingMonocularDepth/run.py'
 
     # change directory
@@ -101,14 +115,18 @@ if video_file:
 
     # yolo and merge
     with st.spinner('Running object detection'):
-        output_frames = os.environ.get('OUTPUT_FRAMES_PATH')
+        output_frames = "OUTPUT_FRAMES"
+
+        if not os.path.exists(output_frames):
+            os.makedirs(output_frames)
+        #output_frames = os.environ.get('OUTPUT_FRAMES_PATH')
         for img in os.listdir(frames_dir):
             depth_path = os.path.join(depth_frames_dir, img.split('.jpg')[0] + '.png')
             process_images(depth_path=depth_path, original_path=os.path.join(frames_dir, img),
                            depth_images_folder=output_frames)
 
     # Frames to output video
-    output_path = os.path.join(os.environ.get('OUTPUT_VIDEO_PATH'), "converted.mp4")
+    output_path = os.path.join(output_frames, "converted.mp4")
     fps = int(os.environ.get('FPS')) # Frames per second
     VideoToFrame.convert_frames_to_video(output_frames, output_path, fps)
 
