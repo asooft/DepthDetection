@@ -21,7 +21,7 @@ os.chdir(target_dir)
 
 # Verify the current directory
 current_dir = os.getcwd()
-print("Current directory:", current_dir)
+st.write("Current directory:", current_dir)
 
 
 yolo_model_path = 'modelSmall.pkl'
