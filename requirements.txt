@@ -3,3 +3,4 @@ streamlit
 plost
 pandas
 opencv-python
+libgl1
