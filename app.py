@@ -11,7 +11,7 @@ import VideoToFrame
 st.set_page_config(layout='wide', initial_sidebar_state='expanded', page_title='Video Object Detection and Depth Estimation')
 st.title('Video Object Detection and Depth Estimation')
 
-yolo_model_path = os.environ.get('YOLO_MODEL_PATH')
+yolo_model_path = 'modelSmall.pkl'
 with open(yolo_model_path, 'rb') as f:
     yolo = pickle.load(f)
 
