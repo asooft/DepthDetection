@@ -136,12 +136,18 @@ if video_file:
 
         if not os.path.exists(output_frames):
             os.makedirs(output_frames)
+            
+        output_video = "OUTPUT_Video"
+
+        if not os.path.exists(output_video):
+            os.makedirs(output_video)
+            
         for img in os.listdir(frames_dir):
             process_images(depth_path=os.path.join(depth_frames_dir, img), original_path=os.path.join(frames_dir, img),
                            depth_images_folder=output_frames)
 
     # Frames to output video
-    output_path = os.path.join(output_frames, "converted.webm")
+    output_path = os.path.join(output_video, "converted.webm")
     #output_path = os.path.join(os.environ.get('OUTPUT_VIDEO_PATH'), "converted.webm")
     fps = int(os.environ.get('FPS', '5'))
     VideoToFrame.convert_frames_to_video(output_frames, output_path, fps)
