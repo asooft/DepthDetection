@@ -13,6 +13,9 @@ import requests
 st.set_page_config(layout='wide', initial_sidebar_state='expanded', page_title='Video Object Detection and Depth Estimation')
 st.title('Video Object Detection and Depth Estimation')
 
+current_path = os.getcwd()
+st.write("Current path:", current_path)
+
 yolo_model_path = 'modelSmall.pkl'
 with open(yolo_model_path, 'rb') as f:
     yolo = pickle.load(f)
